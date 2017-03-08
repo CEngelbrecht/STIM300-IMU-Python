@@ -55,6 +55,7 @@ if __name__ == '__main__':
     while(True):
         i.read_datagram()
         i.decode()
+        print "helo"
 
 
 
