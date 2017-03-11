@@ -5,7 +5,7 @@ import time
 
 class StimInterface(object):
     _baudrate = 921600
-    _read_length = 37   #40 - 3 (2 for lf and cr, and one for header)
+    _read_length = 39   #40 - 3 (2 for lf and cr, and one for header)
     _gyro = None
     _acc = None
     _inc = None
@@ -27,8 +27,11 @@ class StimInterface(object):
             #print(b'\x93')
             print(self.last_msg)
             #time.sleep(1)
-        self.last_msg = self.last_msg + self.serial.read(self._read_length)
+        self.last_msg = self.serial.read(self._read_length)
 
+
+    #use calculator to solve binary to int conversions
+    #figure out how this function is converting negative numbers
     def decode(self):
         start = 0
         print('Decoding')
@@ -37,17 +40,18 @@ class StimInterface(object):
             b'\x00' + self.last_msg[start + 3:start + 6][::-1] +
             b'\x00' + self.last_msg[start + 6:start + 9][::-1],
             dtype='<i'
-        ).astype(np.float32) / (2 ** 14)
+        ).astype(np.)    #      /  (2 ** 14)
 
         start += 10
         print('Reading ACC')
+
         # acc
         self.acc = np.fromstring(
             b'\x00' + self.last_msg[start + 0:start + 3][::-1] +
             b'\x00' + self.last_msg[start + 3:start + 6][::-1] +
             b'\x00' + self.last_msg[start + 6:start + 9][::-1],
             dtype='<i'
-        ).astype(np.float32) / (2 ** 19)
+        ).astype(np.int32)     #/ (2 ** 27)
         start += 10
 
         # inc
@@ -61,6 +65,8 @@ class StimInterface(object):
         _gyro = self.gyro
         _inc = self._inc
         _acc = self.acc
+        self.serial.flushInput()
+        print(self.last_msg)
 
 
 if __name__ == '__main__':
@@ -73,7 +79,7 @@ if __name__ == '__main__':
         print(i.gyro)
         print(i.acc)
         print(i.inc)
-        time.sleep(4)
+        time.sleep(1)
 
 
 
